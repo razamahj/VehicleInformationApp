@@ -1,5 +1,8 @@
 ﻿@page "/vehicle-info"
 @inject VehicleInfoApp.Services.VehicleService VehicleService
+@inject IJSRuntime JSRuntime
+@using System.Text.Json;
+@using Microsoft.JSInterop
 
 <h3>Vehicle Information</h3>
 
@@ -40,6 +43,16 @@
     private string errorMessage;
     private bool isLoading;
 
+    protected override async Task OnInitializedAsync()
+    {
+        // Check if data is available in local storage
+        var cachedDataJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "cachedVehicleInfo");
+        if (!string.IsNullOrEmpty(cachedDataJson))
+        {
+            vehicleInfo = JsonSerializer.Deserialize<VehicleInfoApp.Services.VehicleInfo>(cachedDataJson);
+        }
+    }
+
     private async Task GetVehicleInfo()
     {
         try
@@ -52,7 +65,20 @@
 
             errorMessage = null;
             isLoading = true;
-            vehicleInfo = await VehicleService.GetVehicleInfo(registrationNumber);
+
+            // Check if data is available in local storage
+            var cachedDataJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "cachedVehicleInfo");
+            if (!string.IsNullOrEmpty(cachedDataJson))
+            {
+                vehicleInfo = JsonSerializer.Deserialize<VehicleInfoApp.Services.VehicleInfo>(cachedDataJson);
+            }
+            else
+            {
+                vehicleInfo = await VehicleService.GetVehicleInfo(registrationNumber);
+
+                // Store fetched data in local storage
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "cachedVehicleInfo", JsonSerializer.Serialize(vehicleInfo));
+            }
         }
         catch (HttpRequestException ex)
         {

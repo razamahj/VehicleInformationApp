@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using VehicleInfoApp;
 using VehicleInfoApp.Services;
 using VehicleInformationApp;
@@ -22,5 +23,6 @@ builder.Services.AddScoped(sp =>
 });
 
 builder.Services.AddScoped<VehicleService>();
+builder.Services.AddSingleton<IJSRuntime, JSRuntime>();
 
 await builder.Build().RunAsync();
