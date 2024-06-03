@@ -1,0 +1,44 @@
+﻿@page "/vehicle-info"
+@inject VehicleInfoApp.Services.VehicleService VehicleService
+
+<h3>Vehicle Information</h3>
+
+<div>
+    <label for="registrationNumber">Enter Registration Number:</label>
+    <input type="text" @bind="registrationNumber" id="registrationNumber" />
+    <button @onclick="GetVehicleInfo">Submit</button>
+</div>
+
+@if (vehicleInfo != null)
+{
+    <div>
+        <p><strong>Make:</strong> @vehicleInfo.Make</p>
+        <p><strong>Model:</strong> @vehicleInfo.Model</p>
+        <p><strong>Colour:</strong> @vehicleInfo.Colour</p>
+        <p><strong>MOT Expiry Date:</strong> @vehicleInfo.MotExpiryDate</p>
+        <p><strong>Mileage at Last MOT:</strong> @vehicleInfo.MileageAtLastMot</p>
+    </div>
+}
+
+@code {
+    private string registrationNumber;
+    private VehicleInfoApp.Services.VehicleInfo vehicleInfo;
+    private string errorMessage;
+
+    private async Task GetVehicleInfo()
+    {
+        try
+        {
+            vehicleInfo = await VehicleService.GetVehicleInfo(registrationNumber);
+            errorMessage = null;
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Failed to fetch vehicle information. Please check the registration number and try again.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+    }
+}
