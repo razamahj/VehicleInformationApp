@@ -52,7 +52,7 @@
         {
             errorMessage = "Failed to fetch vehicle information. Please check your internet connection and try again.";
         }
-        catch (ApiException ex) // Custom exception for server-side errors
+        catch (ApiException ex)
         {
             errorMessage = $"An error occurred while fetching vehicle information: {ex.Message}";
         }
