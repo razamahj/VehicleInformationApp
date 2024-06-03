@@ -101,3 +101,23 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.loading-indicator {
+    margin-top: 10px;
+}
+
+/* Responsive styles */
+@media only screen and (max-width: 600px) {
+    /* Adjust styles for smaller screens */
+    .error-message {
+        font-size: 14px;
+    }
+
+    .loading-indicator {
+        font-size: 14px;
+    }
+}
