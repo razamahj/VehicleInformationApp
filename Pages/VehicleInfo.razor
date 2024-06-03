@@ -9,6 +9,20 @@
     <button @onclick="GetVehicleInfo">Submit</button>
 </div>
 
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="error-message">
+        @errorMessage
+    </div>
+}
+
+@if (isLoading)
+{
+    <div class="loading-indicator">
+        Loading...
+    </div>
+}
+
 @if (vehicleInfo != null)
 {
     <div>
@@ -24,21 +38,31 @@
     private string registrationNumber;
     private VehicleInfoApp.Services.VehicleInfo vehicleInfo;
     private string errorMessage;
+    private bool isLoading;
 
     private async Task GetVehicleInfo()
     {
         try
         {
-            vehicleInfo = await VehicleService.GetVehicleInfo(registrationNumber);
             errorMessage = null;
+            isLoading = true;
+            vehicleInfo = await VehicleService.GetVehicleInfo(registrationNumber);
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
-            errorMessage = "Failed to fetch vehicle information. Please check the registration number and try again.";
+            errorMessage = "Failed to fetch vehicle information. Please check your internet connection and try again.";
+        }
+        catch (ApiException ex) // Custom exception for server-side errors
+        {
+            errorMessage = $"An error occurred while fetching vehicle information: {ex.Message}";
         }
         catch (Exception ex)
         {
             errorMessage = $"An unexpected error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 }
