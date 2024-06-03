@@ -44,6 +44,12 @@
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(registrationNumber) || registrationNumber.Length != 7)
+            {
+                errorMessage = "Please enter a valid 7-character registration number.";
+                return;
+            }
+
             errorMessage = null;
             isLoading = true;
             vehicleInfo = await VehicleService.GetVehicleInfo(registrationNumber);
