@@ -1,7 +1,7 @@
 ﻿@page "/vehicle-info"
 @inject VehicleInfoApp.Services.VehicleService VehicleService
 @inject IJSRuntime JSRuntime
-@using System.Text.Json;
+@using System.Text.Json
 @using Microsoft.JSInterop
 
 <h3>Vehicle Information</h3>
@@ -9,7 +9,7 @@
 <div>
     <label for="registrationNumber">Enter Registration Number:</label>
     <input type="text" @bind="registrationNumber" id="registrationNumber" />
-    <button @onclick="GetVehicleInfo">Submit</button>
+    <button @onclick="GetVehicleInfo" disabled="@isLoading">Submit</button>
 </div>
 
 @if (!string.IsNullOrEmpty(errorMessage))
@@ -66,19 +66,11 @@
             errorMessage = null;
             isLoading = true;
 
-            // Check if data is available in local storage
-            var cachedDataJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "cachedVehicleInfo");
-            if (!string.IsNullOrEmpty(cachedDataJson))
-            {
-                vehicleInfo = JsonSerializer.Deserialize<VehicleInfoApp.Services.VehicleInfo>(cachedDataJson);
-            }
-            else
-            {
-                vehicleInfo = await VehicleService.GetVehicleInfo(registrationNumber);
+            // Fetch vehicle info
+            vehicleInfo = await VehicleService.GetVehicleInfo(registrationNumber);
 
-                // Store fetched data in local storage
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "cachedVehicleInfo", JsonSerializer.Serialize(vehicleInfo));
-            }
+            // Store fetched data in local storage
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "cachedVehicleInfo", JsonSerializer.Serialize(vehicleInfo));
         }
         catch (HttpRequestException ex)
         {
@@ -88,13 +80,5 @@
         {
             errorMessage = $"An error occurred while fetching vehicle information: {ex.Message}";
         }
-        catch (Exception ex)
-        {
-            errorMessage = $"An unexpected error occurred: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
-        }
     }
-}
+    }
